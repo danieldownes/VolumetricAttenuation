@@ -1,8 +1,9 @@
+using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 
-class GradientColour
+public class GradientColour
 {
 	
 	class ColourPoint           // Internal class used to store colours at different points in the gradient
@@ -21,12 +22,26 @@ class GradientColour
 	}
 	
 	private List<ColourPoint> colour;      // An array of colour points in ascending value
-	
 
-	void Start()
+
+	public void init()
 	{
-		createDefaultHeatMapGradient();
+		colour = new List<ColourPoint>();
 	}
+
+	
+	// Places a 5 colour heatmap gradient into the "colour" vector:
+	public void createDefaultHeatMapGradient()
+	{
+		//if( colour.Count > 0);
+		//	colour.Clear();
+		colour.Add(new ColourPoint(0, 0, 1, 0.0f));      // Blue
+		colour.Add(new ColourPoint(0, 1, 1, 0.25f));     // Cyan
+		colour.Add(new ColourPoint(0, 1, 0, 0.5f));      // Green
+		colour.Add(new ColourPoint(1, 1, 0, 0.75f));     // Yellow
+		colour.Add(new ColourPoint(1, 0, 0, 1.0f));      // Red
+	}
+
 	
 	// Inserts a new colour point into its correct position:
 	public void addColourPoint(float red, float green, float blue, float value)
@@ -48,18 +63,7 @@ class GradientColour
 	{
 		colour.Clear();
 	}
-	
-	// Places a 5 colour heatmap gradient into the "colour" vector:
-	public void createDefaultHeatMapGradient()
-	{
-		colour.Clear();
-		colour.Add(new ColourPoint(0, 0, 1, 0.0f));      // Blue
-        colour.Add(new ColourPoint(0, 1, 1, 0.25f));     // Cyan
-        colour.Add(new ColourPoint(0, 1, 0, 0.5f));      // Green
-        colour.Add(new ColourPoint(1, 1, 0, 0.75f));     // Yellow
-        colour.Add(new ColourPoint(1, 0, 0, 1.0f));      // Red
-	}
-	
+
 	// Inputs a (value) between 0 and 1 and outputs the (red), (green) and (blue)
 	//  values representing that position in the gradient.
 	public void getcolourAtValue(float value, ref float red, ref float green, ref float blue)
@@ -77,13 +81,18 @@ class GradientColour
 			if( value < currC.val)
 			{
 				prevC = colour[ Math.Max(0, i - 1) ];
+				//Debug.Log("max:" + Math.Max(0, i - 1).ToString());
 
 				float valueDiff    = (prevC.val - currC.val);
 				float fractBetween = (valueDiff == 0) ? 0 : (value - currC.val) / valueDiff;
 
+				//Debug.Log("valueDiff:" + valueDiff.ToString());
+
 				red   = (prevC.r - currC.r) * fractBetween + currC.r;
 				green = (prevC.g - currC.g) * fractBetween + currC.g;
 				blue  = (prevC.b - currC.b) * fractBetween + currC.b;
+
+				//Debug.Log("return col");
 
 				return;
 			}
@@ -94,6 +103,8 @@ class GradientColour
         red = last.r;
         green = last.g;
         blue = last.b;
+
+		//Debug.Log("return last");
 		
 		return;
 	}
