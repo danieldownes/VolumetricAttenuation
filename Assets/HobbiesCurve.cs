@@ -40,7 +40,7 @@ using System.Collections.Generic;
  
   The script prints in standard output a tikz command which draws the given path
   using the given options. In this path all control points are explicit, as computed
-  by the string using Hobby's algorith.
+  by the string using Hobby's algorithm.
  
   For example:
  
@@ -54,29 +54,29 @@ using System.Collections.Generic;
 
 
 
- * Conversion notes:
- * 
- * radians() in Phython is Deg2Rad?
- * 
- * complex type == Vector2
- * numpy library ??
- * ** opperation?
- * 
- * range(list) returns array of indexes in the list
- * 
- * a = np.zeros((L, L)); // Double brackets == 2D array
- * 
- * solve_for_thetas(*build_coefficients(path))    * is for???
- * 
- * r = []  //  before for loops ??
- * 
- * points[k].phi = -    is -= ??
+ Conversion notes:
+	**  is Mathf.Pow
+ 
+	numpy.linalg.solve(a, b)
+	
+	complex type == Vector2
+ 
+ 
+   Unsure: 
+   radians() in Phython is Deg2Rad?
+ 
+ 
+  range(list) returns array of indexes in the list
+  a = np.zeros((L, L)); // Double brackets == 2D array
+  solve_for_thetas(*build_coefficients(path))    * is for???
+  r = []  //  before for loops ??
+  points[k].phi = -    is -= ??
+  
  */
 
 
 public class HobbiesCurve : MonoBehaviour
 {
-
 	// Helper functions..
 
 	static float arg(Vector2 z)
@@ -87,7 +87,7 @@ public class HobbiesCurve : MonoBehaviour
 	static Vector2 direc(float angle)
 	{
 		// Given an angle in degrees, returns a complex with modulo 1 and the given phase
-		float phi = Mathf.Deg2Rad(angle); //TODO: radians() in Phython is Deg2Rad?
+		float phi = Mathf.Deg2Rad(angle); //TODO: radians() in Python is Deg2Rad?
 		return Vector2(Mathf.Cos(phi), Mathf.Sin(phi));
 	}
 
@@ -398,6 +398,49 @@ public class HobbiesCurve : MonoBehaviour
 			}	
 			return(np.linalg.solve(a, b) );
 		}
+		
+		/*
+		//https://social.msdn.microsoft.com/Forums/en-US/70408584-668d-49a0-b179-fabf101e71e9/solution-of-linear-equations-systems?forum=Vsexpressvcs
+		public void ComputeCoefficents(double[,] X, double[] Y)
+		{
+			  int I, J, K, K1, N;
+			  N = Y.Length;
+			  for (K = 0; K < N; K++)
+			  {
+				K1 = K + 1;
+				for (I = K; I < N; I++)
+				{
+				  if (X[I, K] != 0)
+				  {
+					for (J = K1; J < N; J++)
+					{
+					  X[I, J] /= X[I, K];
+					}
+					Y[I] /= X[I, K];
+				  }
+				}
+				for (I = K1; I < N; I++)
+				{
+				  if (X[I, K] != 0)
+				  {
+					for (J = K1; J < N; J++)
+					{
+					  X[I, J] -= X[K, J];
+					}
+					Y[I] -= Y[K];
+				  }
+				}
+			  }
+			  for (I = N - 2; I >= 0; I--)
+			  {
+				for (J = N - 1; J >= I + 1; J--)
+				{
+				  Y[I] -= X[I, J] * Y[J];
+				}
+			  }
+			}
+		}
+		*/
 
 		
 		void solve_angles(Path path)
