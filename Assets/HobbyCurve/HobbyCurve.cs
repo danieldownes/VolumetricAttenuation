@@ -63,37 +63,36 @@ using System.Collections.Generic;
  
  
    Unsure: 
-   radians() in Phython is Deg2Rad?
+    radians() in Phython is Deg2Rad?
  
- 
-  range(list) returns array of indexes in the list
-  a = np.zeros((L, L)); // Double brackets == 2D array
-  solve_for_thetas(*build_coefficients(path))    * is for???
-  r = []  //  before for loops ??
-  points[k].phi = -    is -= ??
+	function2(*function1()) == unpacks array from function1() and passes each element as a seperate parameter
+	range(list) returns array of indexes in the list
+	a = np.zeros((L, L)); // Double brackets == 2D array
+	solve_for_thetas(*build_coefficients(path))    * is for???
+	r = []  //  before for loops ??
   
  */
 
 
-public class HobbyCurve : MonoBehaviour
+public class HobbyCurve
 {
 	// Helper functions..
 
-	static float arg(Vector2 z)
+	public static float arg(Vector2 z)
 	{
 		return Mathf.Atan2(z.x, z.y);
 	}
 
-	static Vector2 direc(float angle)
+	public static Vector2 direc(float angle)
 	{
 		// Given an angle in degrees, returns a complex with modulo 1 and the given phase
-		float phi = Mathf.Deg2Rad(angle); //TODO: radians() in Python is Deg2Rad?
-		return Vector2(Mathf.Cos(phi), Mathf.Sin(phi));
+		float phi = Mathf.Deg2Rad * angle; //TODO: radians() in Python is Deg2Rad?
+		return new Vector2(Mathf.Cos(phi), Mathf.Sin(phi));
 	}
 
-	static void direc_rad(float angle)
+	public static Vector2 direc_rad(float angle)
 	{
 		// Given an angle in radians, returns a complex with modulo 1 and the given phase
-		return Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+		return new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
 	}
 }

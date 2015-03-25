@@ -3,7 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-public class HobbyPath : MonoBehaviour
+public class HobbyPath
 {
 
 	// This class implements a path, which is a list of HobbyPoints
@@ -20,7 +20,7 @@ public class HobbyPath : MonoBehaviour
 	
 	public void init(float tension_, bool cyclic_, int curl_begin, int curl_end_)
 	{
-		points = List<HobbyPoint>();
+		points = new List<HobbyPoint>();
 		
 		cyclic = cyclic_;
 		curl_begin = curl_begin;
@@ -46,22 +46,41 @@ public class HobbyPath : MonoBehaviour
 		else
 			return range(1, points.Count - 1);
 	}
+
+	int[] range(int top)
+	{
+		int[] r = new int[top];
+		for( int i = 0; i < top; i++)
+			r[i] = i;
+
+		return r;
+	}
+
+	int[] range(int bot, int top)
+	{
+		int[] r = new int[top - bot];
+		for( int i = 0; i < top; i++)
+			r[i] = i + bot;
+
+		return r;
+	}
+
 	
 	// The following functions allow to use a Path object like an array
 	// so that, if x = Path(...), you can do len(x) and x[i]
-	void append(List<Point> data)
+	void append(List<HobbyPoint> data)
 	{
 		points.AddRange(data);
 	}
 	
 	
-	void len()
+	int len()
 	{
 		return points.Count;
 	}
 	
 	
-	void getitem(int i)
+	HobbyPoint getitem(int i)
 	{
 		// Gets the point [i] of the list, but assuming the list is circular and
 		//  thus allowing for indexes greater than the list length
@@ -73,7 +92,7 @@ public class HobbyPath : MonoBehaviour
 	// Now some functions from John Hobby and METAFONT book
 	// (The good bits)
 	
-	void f(float theta, float phi)
+	float f(float theta, float phi)
 	{
 		// "Velocity" function
 		float n = 2 + Mathf.Sqrt(2) * (Mathf.Sin(theta) - Mathf.Sin(phi) / 16) * 
@@ -81,6 +100,7 @@ public class HobbyPath : MonoBehaviour
 				(Mathf.Cos(theta) - Mathf.Cos(phi));
 		
 		float m = 3 * (1 + 0.5f * (Mathf.Sqrt(5) - 1) * Mathf.Cos(theta) + 0.5f * (3 - Mathf.Sqrt(5)) * Mathf.Cos(phi));
+
 		return n / m;
 	}
 	
@@ -91,9 +111,9 @@ public class HobbyPath : MonoBehaviour
 		// at each one, this function finds the appropriate control points of the
 		// Bezier's curve, using John Hobby's algorithm
 		
-		Vector2 i = Vector2(0, 1);
-		float u = z0 + Mathf.Exp(i * theta) * (z1 - z0) * f(theta, phi) * alpha;
-		float v = z1 - Mathf.Exp(-i * phi) * (z1 - z0) * f(phi, theta) * beta;
+		Vector2 i = new Vector2(0, 1);
+		float u = z0; //TODO: + Mathf.Exp(i * theta) * (z1 - z0) * f(theta, phi) * alpha;
+		float v = z1; //TODO:- Mathf.Exp(-i * phi) * (z1 - z0) * f(phi, theta) * beta;
 		
 		return( new Vector2(u, v) );
 	}
@@ -106,13 +126,13 @@ public class HobbyPath : MonoBehaviour
 		
 		for( int i = 0; i < points.Count; i++ )
 		{
-			float v_post = points[i + 1].z - points[i].z;
-			float v_ant = points[i].z - points[i - 1].z;
+			Vector2 v_post = points[i + 1].z - points[i].z;
+			Vector2 v_ant = points[i].z - points[i - 1].z;
 			
 			// Store the computed values in the Points of the Path
-			points[i].d_ant = Mathf.Abs(v_ant);
-			points[i].d_post = Mathf.Abs(v_post);
-			points[i].xi = HobbyCurve.arg(v_post / v_ant);
+			points[i].d_ant = v_ant.magnitude;
+			points[i].d_post = v_post.magnitude;
+			//points[i].xi = HobbyCurve.arg(v_post.x / v_ant.x, v_post.y / v_ant.y); 		//TODO: Is it division?
 		}
 		
 		if( !cyclic)
@@ -147,7 +167,7 @@ public class HobbyPath : MonoBehaviour
 			int curl = curl_begin;
 			float alpha_0 = points[0].alpha;
 			float beta_1 = points[1].beta;
-			float xi_0 = (alpha_0 ** 2) * curl / (beta_1 ** 2);
+			float xi_0 = Mathf.Pow(alpha_0, 2) * curl / Mathf.Pow(beta_1, 2);
 			float xi_1 = points[1].xi;
 			A[0] = 0;
 			B[0] = 0;
@@ -160,11 +180,11 @@ public class HobbyPath : MonoBehaviour
 		int k;
 		for( k = 1; k < points.Count; k++) //TODO: Replace with range()
 		{
-			A[k] = ( points[k-1].alpha / ((points[k].beta**2) * points[k].d_ant));
-			B[k] = (3-points[k-1].alpha) / ((points[k].beta**2) * points[k].d_ant);
-			C[k] = ((3-points[k+1].beta) / ((points[k].alpha**2) * points[k].d_post));
-			D[k] = ( points[k+1].beta / ((points[k].alpha**2) * points[k].d_post));
-			R[k] = (-B[k] * points[k].xi - D[k] * points[k+1].xi);
+			A[k] = ( points[k-1].alpha / (Mathf.Pow(points[k].beta, 2) * points[k].d_ant));
+			B[k] = (3-points[k-1].alpha) / (Mathf.Pow(points[k].beta, 2) * points[k].d_ant);
+			C[k] = ((3-points[k+1].beta) / (Mathf.Pow(points[k].alpha, 2) * points[k].d_post));
+			D[k] = ( points[k+1].beta / (Mathf.Pow(points[k].alpha, 2) * points[k].d_post));
+			R[k] = (-B[k] * points[k].xi - D[k] * points[k + 1].xi);
 		}
 		
 		if( !cyclic)
@@ -176,7 +196,7 @@ public class HobbyPath : MonoBehaviour
 			int curl = curl_end;
 			float beta_n = points[n].beta;
 			float alpha_n_1 = points[n - 1].alpha;
-			float xi_n = (beta_n**2) * curl / (alpha_n_1**2); 	// TODO: ** ?????
+			float xi_n = Mathf.Pow(beta_n, 2) * curl / Mathf.Pow(alpha_n_1, 2);
 			A[k]((3-beta_n) * xi_n + alpha_n_1);
 			B[k](beta_n*xi_n + 3 - alpha_n_1);
 			R[k](0);
@@ -207,9 +227,9 @@ public class HobbyPath : MonoBehaviour
 			a[k][prev] = A[k];
 			a[k][k] = B[k] + C[k];
 			a[k][post] = D[k];
-			int[] b = np.array(R); //TODO: Hard-Copy the array?
-		}	
-
+			//int[] b = Array.Copy( np.array(R); //TODO: Hard-Copy the array?
+		}
+		int[] b; // DELETE
 		return(ComputeCoefficents(a, b) );  //np.linalg.solve(a, b)
 	}
 	
@@ -217,45 +237,43 @@ public class HobbyPath : MonoBehaviour
 	//https://social.msdn.microsoft.com/Forums/en-US/70408584-668d-49a0-b179-fabf101e71e9/solution-of-linear-equations-systems?forum=Vsexpressvcs
 	public void ComputeCoefficents(float[,] X, float[] Y)
 	{
-		  int I, J, K, K1, N;
-		  N = Y.Length;
-		  for (K = 0; K < N; K++)
+	  int I, J, K, K1, N;
+	  N = Y.Length;
+	  for (K = 0; K < N; K++)
+	  {
+		K1 = K + 1;
+		for (I = K; I < N; I++)
+		{
+		  if (X[I, K] != 0)
 		  {
-			K1 = K + 1;
-			for (I = K; I < N; I++)
+			for (J = K1; J < N; J++)
 			{
-			  if (X[I, K] != 0)
-			  {
-				for (J = K1; J < N; J++)
-				{
-				  X[I, J] /= X[I, K];
-				}
-				Y[I] /= X[I, K];
-			  }
+			  X[I, J] /= X[I, K];
 			}
-			for (I = K1; I < N; I++)
-			{
-			  if (X[I, K] != 0)
-			  {
-				for (J = K1; J < N; J++)
-				{
-				  X[I, J] -= X[K, J];
-				}
-				Y[I] -= Y[K];
-			  }
-			}
-		  }
-		  for (I = N - 2; I >= 0; I--)
-		  {
-			for (J = N - 1; J >= I + 1; J--)
-			{
-			  Y[I] -= X[I, J] * Y[J];
-			}
+			Y[I] /= X[I, K];
 		  }
 		}
+		for (I = K1; I < N; I++)
+		{
+		  if (X[I, K] != 0)
+		  {
+			for (J = K1; J < N; J++)
+			{
+			  X[I, J] -= X[K, J];
+			}
+			Y[I] -= Y[K];
+		  }
+		}
+	  }
+	  for (I = N - 2; I >= 0; I--)
+	  {
+		for (J = N - 1; J >= I + 1; J--)
+		{
+		  Y[I] -= X[I, J] * Y[J];
+		}
+	  }
 	}
-	
-	
+
 	
 	void solve_angles()
 	{
@@ -273,8 +291,8 @@ public class HobbyPath : MonoBehaviour
 		for(int k = 0; k < points.Count; k++)
 			points[k].theta = x[k];
 
-		foreach(int k in range(L))
-			points[k].phi = - points[k].theta - points[k].xi;
+		//TODO: foreach(int k in range(L))  // L ???
+		//	points[k].phi = - points[k].theta - points[k].xi;
 	}
 	
 	
