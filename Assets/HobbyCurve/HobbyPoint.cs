@@ -3,7 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-public class HobbyPoint
+public class HobbyPoint : MonoBehaviour
 {
 
 	// This class implements the coordinates of a knot, and all kind of auxiliar parameters to compute a smooth path passing through it
@@ -17,38 +17,41 @@ public class HobbyPoint
 	public Vector2 u_right = new Vector2(0,0); 	//  (to be computed later)
 	public float d_ant = 0; 				//  Distance to previous point in the path
 	public float d_post = 0; 				//  Distance to next point in the path
-	
-	
-	// May require alternative function for optional parameters
-	// Coordinates can be given as a complex number
-	public void init(Vector2 z_)
+
+
+	public float tension = 0.5f;
+	public float curl = 0.5f;
+
+	public Transform cp_left;
+	public Transform cp_right;
+
+
+	void Start()
 	{
-		init(z_, 1, 1, Vector2.zero, Vector2.zero );
-	}
-	public void init(Vector2 z_, float alpha_, float beta_, Vector2 v_, Vector2 u_)
-	{
-		z = z_;
-		alpha = alpha_;
-		beta = beta_;
-		v_left = v_;
-		u_right = u_;
+		// Grab control point transforms
+		foreach (Transform t in transform)
+		{
+			if(t.name == "c0")
+				cp_left = t;
+			else if(t.name == "c1")
+				cp_right = t;
+		}
+		
+		Update();
+		
 		d_ant = 0;
 		d_post = 0;
 		xi = 0;
 	}
-	
-	
-	/*
-	void  __str__(self)
+
+	void Update()
 	{
-		// Creates a printable representation of this object, for
-		// debugging purposes return
-		///z = (%.3f, %.3f) alpha = %.2f beta = %.2f theta=%.2f phi=%.2f
-		///[v=(%.2f, %.2f) u=(%.2f, %.2f) d_ant=%.2f d_post=%.2f xi=%.2f]""" % \
-		///(self.z.real, self.z.imag, self.alpha, self.beta,
-		///degrees(self.theta), degrees(self.phi),
-		///self.v_left.real, self.v_left.imag, self.u_right.real,
-		///self.u_right.imag, self.d_ant, self.d_post, degrees(self.xi))
+		z.x = transform.position.x;
+		z.y = transform.position.y;
+
+		//cp_left.position = new Vector3(v_left.x, v_left.y, 0);
+		//cp_right.position = new Vector3(u_right.x, u_right.y, 0);
 	}
-	*/
+
+
 }

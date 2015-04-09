@@ -86,7 +86,7 @@ public class HobbyCurve
 	public static Vector2 direc(float angle)
 	{
 		// Given an angle in degrees, returns a complex with modulo 1 and the given phase
-		float phi = Mathf.Deg2Rad * angle; //TODO: radians() in Python is Deg2Rad?
+		float phi = Mathf.Deg2Rad * angle;
 		return new Vector2(Mathf.Cos(phi), Mathf.Sin(phi));
 	}
 
@@ -95,4 +95,21 @@ public class HobbyCurve
 		// Given an angle in radians, returns a complex with modulo 1 and the given phase
 		return new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
 	}
+
+	// quotient of two complex numbers
+	public static Vector2 vec2_quot(Vector2 c1, Vector2 c2)
+	{
+		if ((c2.x == 0.0f) && (c2.y == 0.0f))
+			throw new DivideByZeroException("Can't divide by zero Complex number");
+		
+		float newReal = 
+			(c1.x * c2.x + c1.y * c2.y) /
+				(c2.x * c2.x + c2.y * c2.y);
+		float newImaginary = 
+			(c2.x * c1.y - c1.x * c2.y) /
+				(c2.x * c2.x + c2.y * c2.y);
+		
+		return(new Vector2(newReal, newImaginary));
+	}
+
 }
